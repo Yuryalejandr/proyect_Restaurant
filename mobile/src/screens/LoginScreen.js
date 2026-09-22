@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { API_URL } from '../api/config';
 import { colors } from '../theme';
 
@@ -49,7 +49,13 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.brand}><Text style={styles.kicker}>RESTAURANTE</Text><Text style={styles.logo}>Lúmina</Text><Text style={styles.tagline}>Cocina que se recuerda.</Text></View>
+      <Image
+        source={{ uri: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1200&q=80' }}
+        style={styles.ambientImage}
+        blurRadius={5}
+      />
+      <View style={styles.ambientShade} />
+      <View style={styles.brand}><Text style={styles.kicker}>RESTAURANTE</Text><Text style={styles.logo}>Z'eloura</Text><Text style={styles.tagline}>Cocina que se recuerda.</Text></View>
       <View style={styles.form}>
         <Text style={styles.title}>Bienvenido de nuevo</Text>
         <Text style={styles.subtitle}>Ingresa para reservar tu próxima experiencia.</Text>
@@ -59,13 +65,15 @@ export default function LoginScreen({ navigation }) {
         <TextInput style={styles.input} placeholder="Tu contraseña" placeholderTextColor={colors.muted} secureTextEntry value={password} onChangeText={setPassword} />
         <Pressable style={[styles.button, cargando && styles.buttonDisabled]} disabled={cargando} onPress={handleLogin}><Text style={styles.buttonText}>{cargando ? 'Ingresando…' : 'Ingresar'}</Text><Text style={styles.arrow}>→</Text></Pressable>
       </View>
-      <Pressable style={styles.linkButton} onPress={() => navigation.navigate('Register')}><Text style={styles.linkText}>¿Primera vez en Lúmina? <Text style={styles.linkStrong}>Crea tu cuenta</Text></Text></Pressable>
+      <Pressable style={styles.linkButton} onPress={() => navigation.navigate('Register')}><Text style={styles.linkText}>¿Primera vez en Z'eloura? <Text style={styles.linkStrong}>Crea tu cuenta</Text></Text></Pressable>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.background, padding: 24, justifyContent: 'center' },
+  ambientImage: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, opacity: 0.3 },
+  ambientShade: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0, backgroundColor: 'rgba(23, 19, 15, 0.66)' },
   brand: { marginBottom: 38 },
   kicker: { color: colors.caramelLight, letterSpacing: 3, fontSize: 10, fontWeight: '800' },
   logo: { color: colors.cream, fontSize: 43, fontWeight: '800', marginTop: 4, letterSpacing: -1 },

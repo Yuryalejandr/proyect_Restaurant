@@ -20,7 +20,9 @@ const zonas = ['Salón principal', 'Terraza', 'Bar'];
 const titulos = ['Fecha', 'Hora', 'Comensales', 'Detalles', 'Confirmar'];
 
 export default function AgendarReservaScreen({ route, navigation }) {
-  const { user, plato = 'Selección del chef', fotoUri = null } = route.params;
+  const { user, platos = [], fotoUri = null } = route.params;
+  const platosElegidos = Array.isArray(platos) ? platos : [];
+  const resumenPlatos = platosElegidos.length ? platosElegidos.join(', ') : 'Sin productos seleccionados';
   const [paso, setPaso] = useState(1);
   const [fecha, setFecha] = useState('');
   const [hora, setHora] = useState('');
@@ -67,7 +69,7 @@ export default function AgendarReservaScreen({ route, navigation }) {
         hora,
         personas,
         estado: 'pendiente',
-        plato,
+        plato: resumenPlatos,
         nota: `${zona}${nota ? ` · ${nota}` : ''}`,
         fotoUri,
       };
@@ -151,12 +153,12 @@ export default function AgendarReservaScreen({ route, navigation }) {
     }
     return <>
       <Text style={styles.title}>Todo listo.</Text>
-      <Text style={styles.description}>Revisa los detalles de tu experiencia Lúmina.</Text>
+      <Text style={styles.description}>Revisa los detalles de tu experiencia Z'eloura.</Text>
       <View style={styles.summary}>
         <Summary label="FECHA" value={fecha} />
         <Summary label="HORA" value={hora} />
         <Summary label="MESA" value={`${personas} ${personas === 1 ? 'persona' : 'personas'} · ${zona}`} />
-        <Summary label="PLATO DESTACADO" value={plato} />
+        <Summary label="PRODUCTOS ELEGIDOS" value={resumenPlatos} />
         {nota ? <Summary label="NOTA" value={nota} /> : null}
       </View>
       {fotoUri && <Image source={{ uri: fotoUri }} style={styles.summaryPhoto} />}

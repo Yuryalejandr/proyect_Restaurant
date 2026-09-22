@@ -15,15 +15,15 @@ exports.listar = (req, res) => {
 };
 
 exports.crear = (req, res) => {
-  const { nombre, categoria, detalle = '', precio, imagen = '' } = req.body;
+  const { nombre, categoria, detalle = '', precio, imagen = '', calificacion = 4.8, porcentaje_estrellas = 96, resenas = [] } = req.body;
   const precioNumero = Number(precio);
-  if (!nombre?.trim() || !['plato', 'vino', 'postre'].includes(categoria) || !Number.isInteger(precioNumero) || precioNumero < 0) {
+  if (!nombre?.trim() || !['entrada', 'plato', 'bebida', 'coctel', 'postre'].includes(categoria) || !Number.isInteger(precioNumero) || precioNumero < 0) {
     return res.status(400).json({ mensaje: 'Nombre, categoría y precio válido son obligatorios.' });
   }
 
   db.run(
-    'INSERT INTO menu_items (nombre, categoria, detalle, precio, imagen) VALUES (?, ?, ?, ?, ?)',
-    [nombre.trim(), categoria, detalle.trim(), precioNumero, imagen.trim()],
+    'INSERT INTO menu_items (nombre, categoria, detalle, precio, imagen, calificacion, porcentaje_estrellas, resenas) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    [nombre.trim(), categoria, detalle.trim(), precioNumero, imagen.trim(), Number(calificacion) || 4.8, Number(porcentaje_estrellas) || 96, JSON.stringify(resenas)],
     function (err) {
       if (err) return res.status(500).json({ mensaje: err.message });
       db.get('SELECT * FROM menu_items WHERE id = ?', [this.lastID], (selectError, item) => {
@@ -37,7 +37,7 @@ exports.crear = (req, res) => {
 exports.actualizar = (req, res) => {
   const { nombre, categoria, detalle = '', precio, imagen = '', disponible = 1 } = req.body;
   const precioNumero = Number(precio);
-  if (!nombre?.trim() || !['plato', 'vino', 'postre'].includes(categoria) || !Number.isInteger(precioNumero) || precioNumero < 0) {
+  if (!nombre?.trim() || !['entrada', 'plato', 'bebida', 'coctel', 'postre'].includes(categoria) || !Number.isInteger(precioNumero) || precioNumero < 0) {
     return res.status(400).json({ mensaje: 'Datos de carta no válidos.' });
   }
   db.run(

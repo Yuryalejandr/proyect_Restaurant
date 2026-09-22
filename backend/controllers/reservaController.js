@@ -4,6 +4,13 @@ const db = require('../config/db');
 const TOTAL_MESAS = 10;
 const CUPO_MAXIMO = 48;
 
+const obtenerMesasActivas = (callback) => {
+  db.get("SELECT valor FROM configuracion_restaurante WHERE clave = 'mesas_activas'", (err, fila) => {
+    if (err) return callback(err);
+    callback(null, Number(fila?.valor || TOTAL_MESAS));
+  });
+};
+
 const calcularDisponibilidad = (fecha, hora, personas, excluirId, callback) => {
   let query = `
     SELECT COUNT(*) AS mesasOcupadas, COALESCE(SUM(personas), 0) AS cupoOcupado
@@ -20,20 +27,23 @@ const calcularDisponibilidad = (fecha, hora, personas, excluirId, callback) => {
   db.get(query, params, (err, row) => {
     if (err) return callback(err);
 
-    const mesasOcupadas = Number(row.mesasOcupadas || 0);
-    const cupoOcupado = Number(row.cupoOcupado || 0);
-    const cantidad = Number(personas || 0);
-    const mesasDisponibles = Math.max(0, TOTAL_MESAS - mesasOcupadas);
-    const cupoDisponible = Math.max(0, CUPO_MAXIMO - cupoOcupado);
+    obtenerMesasActivas((configError, totalMesas) => {
+      if (configError) return callback(configError);
+      const mesasOcupadas = Number(row.mesasOcupadas || 0);
+      const cupoOcupado = Number(row.cupoOcupado || 0);
+      const cantidad = Number(personas || 0);
+      const mesasDisponibles = Math.max(0, totalMesas - mesasOcupadas);
+      const cupoDisponible = Math.max(0, CUPO_MAXIMO - cupoOcupado);
 
-    callback(null, {
-      totalMesas: TOTAL_MESAS,
-      mesasOcupadas,
-      mesasDisponibles,
-      cupoMaximo: CUPO_MAXIMO,
-      cupoOcupado,
-      cupoDisponible,
-      disponible: mesasDisponibles > 0 && cupoDisponible >= cantidad,
+      callback(null, {
+        totalMesas,
+        mesasOcupadas,
+        mesasDisponibles,
+        cupoMaximo: CUPO_MAXIMO,
+        cupoOcupado,
+        cupoDisponible,
+        disponible: mesasDisponibles > 0 && cupoDisponible >= cantidad,
+      });
     });
   });
 };
@@ -122,22 +132,41 @@ exports.getResumenAdmin = (req, res) => {
     if (reservasError) return res.status(500).json({ mensaje: reservasError.message });
     db.all(consultas.menu, [], (menuError, menu) => {
       if (menuError) return res.status(500).json({ mensaje: menuError.message });
-      const activas = reservas.filter((reserva) => reserva.estado !== 'cancelada');
-      res.json({
-        reservas,
-        menu,
-        estadisticas: {
-          totalReservas: reservas.length,
-          pendientes: reservas.filter((reserva) => reserva.estado === 'pendiente').length,
-          confirmadas: reservas.filter((reserva) => reserva.estado === 'confirmada').length,
-          mesasOcupadas: activas.length,
-          personasActivas: activas.reduce((total, reserva) => total + Number(reserva.personas || 0), 0),
-          totalMesas: TOTAL_MESAS,
-          cupoMaximo: CUPO_MAXIMO,
-        },
+      obtenerMesasActivas((configError, mesasActivas) => {
+        if (configError) return res.status(500).json({ mensaje: configError.message });
+        const activas = reservas.filter((reserva) => reserva.estado !== 'cancelada');
+        res.json({
+          reservas,
+          menu,
+          estadisticas: {
+            totalReservas: reservas.length,
+            pendientes: reservas.filter((reserva) => reserva.estado === 'pendiente').length,
+            confirmadas: reservas.filter((reserva) => reserva.estado === 'confirmada').length,
+            mesasOcupadas: activas.length,
+            mesasActivas,
+            personasActivas: activas.reduce((total, reserva) => total + Number(reserva.personas || 0), 0),
+            totalMesas: mesasActivas,
+            cupoMaximo: CUPO_MAXIMO,
+          },
+        });
       });
     });
   });
+};
+
+exports.actualizarMesasActivas = (req, res) => {
+  const mesasActivas = Number(req.body.mesasActivas);
+  if (!Number.isInteger(mesasActivas) || mesasActivas < 1 || mesasActivas > 100) {
+    return res.status(400).json({ mensaje: 'Indica entre 1 y 100 mesas activas.' });
+  }
+  db.run(
+    "INSERT INTO configuracion_restaurante (clave, valor) VALUES ('mesas_activas', ?) ON CONFLICT(clave) DO UPDATE SET valor = excluded.valor",
+    [mesasActivas],
+    function (err) {
+    if (err) return res.status(500).json({ mensaje: err.message });
+    res.json({ mensaje: 'Mesas activas actualizadas.', mesasActivas });
+    }
+  );
 };
 
 exports.createReserva = (req, res) => {

@@ -47,7 +47,7 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <View style={styles.brand}><Text style={styles.kicker}>RESTAURANTE</Text><Text style={styles.logo}>Lúmina</Text></View>
+      <View style={styles.brand}><Text style={styles.kicker}>RESTAURANTE</Text><Text style={styles.logo}>Z'eloura</Text></View>
       <View style={styles.form}>
         <Text style={styles.title}>Crea tu cuenta</Text>
         <Text style={styles.subtitle}>Una mesa especial está a unos pasos de distancia.</Text>

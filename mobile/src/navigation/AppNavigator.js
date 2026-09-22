@@ -21,7 +21,7 @@ export default function AppNavigator() {
   return (
     <NavigationContainer theme={navigationTheme}>
       <Stack.Navigator initialRouteName="Login" screenOptions={{ headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.cream, headerTitleStyle: { fontWeight: '800' }, contentStyle: { backgroundColor: colors.background } }}>
-        <Stack.Screen name="Login" component={LoginScreen} options={{ title: 'Lúmina' }} />
+        <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Z'eloura" }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Crear cuenta' }} />
         <Stack.Screen name="Inicio" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="AgendarReserva" component={AgendarReservaScreen} options={{ title: 'Reservar mesa' }} />

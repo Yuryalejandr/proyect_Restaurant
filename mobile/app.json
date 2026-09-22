@@ -5,6 +5,11 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#17130F"
+    },
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true
@@ -36,7 +41,8 @@
     [
       "expo-image-picker",
       {
-        "photosPermission": "Permite seleccionar una foto para tu reserva."
+        "photosPermission": "Permite seleccionar una foto para tu perfil.",
+        "cameraPermission": "Permite tomar una foto para tu perfil."
       }
     ]
     ],

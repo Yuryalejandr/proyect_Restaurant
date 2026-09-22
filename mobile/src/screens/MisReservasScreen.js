@@ -46,7 +46,7 @@ export default function MisReservasScreen({ route, navigation }) {
         refreshing={cargando}
         onRefresh={cargarReservas}
         ListHeaderComponent={<>
-          <View style={styles.header}><View><Text style={styles.kicker}>RESTAURANTE LÚMINA</Text><Text style={styles.title}>Mis mesas</Text></View><Text style={styles.counter}>{reservas.length} RESERVAS</Text></View>
+          <View style={styles.header}><View><Text style={styles.kicker}>RESTAURANTE Z'eloura</Text><Text style={styles.title}>Mis mesas</Text></View><Text style={styles.counter}>{reservas.length} RESERVAS</Text></View>
           <Pressable style={styles.newReservation} onPress={() => navigation.navigate('AgendarReserva', { user })}><Text style={styles.newReservationText}>+ Reservar una nueva mesa</Text><Text style={styles.newReservationArrow}>→</Text></Pressable>
         </>}
         ListEmptyComponent={!cargando ? <View style={styles.empty}><Text style={styles.emptyTitle}>Aún no tienes reservas</Text><Text style={styles.emptyText}>Tu próxima experiencia comienza con una mesa.</Text></View> : null}
