@@ -17,17 +17,18 @@ const navigationTheme = {
   colors: { ...DarkTheme.colors, background: colors.background, card: colors.surface, text: colors.cream, border: colors.line },
 };
 
-export default function AppNavigator() {
+export default function AppNavigator({ sesion }) {
+  const rutaInicial = sesion ? (sesion.user.rol === 'admin' ? 'AdminReservas' : 'Inicio') : 'Login';
   return (
     <NavigationContainer theme={navigationTheme}>
-      <Stack.Navigator initialRouteName="Login" screenOptions={{ headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.cream, headerTitleStyle: { fontWeight: '800' }, contentStyle: { backgroundColor: colors.background } }}>
+      <Stack.Navigator initialRouteName={rutaInicial} screenOptions={{ headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.cream, headerTitleStyle: { fontWeight: '800' }, contentStyle: { backgroundColor: colors.background } }}>
         <Stack.Screen name="Login" component={LoginScreen} options={{ title: "Z'eloura" }} />
         <Stack.Screen name="Register" component={RegisterScreen} options={{ title: 'Crear cuenta' }} />
-        <Stack.Screen name="Inicio" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Inicio" component={HomeScreen} initialParams={sesion || undefined} options={{ headerShown: false }} />
         <Stack.Screen name="AgendarReserva" component={AgendarReservaScreen} options={{ title: 'Reservar mesa' }} />
         <Stack.Screen name="MisReservas" component={MisReservasScreen} options={{ title: 'Mis reservas' }} />
-        <Stack.Screen name="AdminReservas" component={AdminReservasScreen} options={{ title: 'Administración' }} />
-        <Stack.Screen name="Perfil" component={ProfileScreen} options={{ title: 'Mi perfil' }} />
+        <Stack.Screen name="AdminReservas" component={AdminReservasScreen} initialParams={sesion || undefined} options={{ title: 'Administración' }} />
+        <Stack.Screen name="Perfil" component={ProfileScreen} initialParams={sesion || undefined} options={{ title: 'Mi perfil' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

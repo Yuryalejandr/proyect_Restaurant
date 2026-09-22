@@ -1,16 +1,30 @@
 import React, { useEffect, useState } from 'react';
+import NetInfo from '@react-native-community/netinfo';
 import { Image, StyleSheet, Text, View } from 'react-native';
-import { initDB } from './src/database/sqlite';
+import { borrarSesionLocal, initDB, obtenerSesionLocal } from './src/database/sqlite';
+import { sincronizarConBackend } from './src/api/sync';
 import AppNavigator from './src/navigation/AppNavigator';
 import { colors } from './src/theme';
 
 export default function App() {
   const [iniciando, setIniciando] = useState(true);
+  const [sesion, setSesion] = useState(null);
 
   useEffect(() => {
-    initDB();
-    const temporizador = setTimeout(() => setIniciando(false), 1100);
-    return () => clearTimeout(temporizador);
+    let activo = true;
+    const iniciar = async () => {
+      await initDB();
+      const sesionLocal = await obtenerSesionLocal();
+      if (!activo) return;
+      setSesion(sesionLocal);
+      sincronizarConBackend();
+      setTimeout(() => setIniciando(false), 1100);
+    };
+    iniciar();
+    const suscripcion = NetInfo.addEventListener((state) => {
+      if (state.isConnected) sincronizarConBackend();
+    });
+    return () => { activo = false; suscripcion(); };
   }, []);
 
   if (iniciando) {
@@ -29,7 +43,7 @@ export default function App() {
     );
   }
 
-  return <AppNavigator />;
+  return <AppNavigator sesion={sesion} onCerrarSesion={async () => { await borrarSesionLocal(); setSesion(null); }} />;
 }
 
 const styles = StyleSheet.create({

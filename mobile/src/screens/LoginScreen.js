@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { API_URL } from '../api/config';
+import { guardarSesionLocal } from '../database/sqlite';
 import { colors } from '../theme';
 
 export default function LoginScreen({ navigation }) {
@@ -34,6 +35,8 @@ export default function LoginScreen({ navigation }) {
         Alert.alert('No pudimos ingresar', data.mensaje || data.error || 'Verifica tus credenciales.');
         return;
       }
+
+      await guardarSesionLocal(data.user, data.token);
 
       navigation.reset({
         index: 0,

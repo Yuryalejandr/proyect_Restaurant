@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Alert, Image, Pressable, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { API_URL } from '../api/config';
+import { borrarSesionLocal, guardarSesionLocal } from '../database/sqlite';
 import { colors } from '../theme';
 
 export default function ProfileScreen({ route, navigation }) {
@@ -31,11 +32,12 @@ export default function ProfileScreen({ route, navigation }) {
       const response = await fetch(`${API_URL}/profile`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ nombre, email, foto_uri: fotoUri }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.mensaje || 'No se pudo guardar el perfil.');
+      await guardarSesionLocal(data, token);
       Alert.alert('Perfil actualizado', 'Tus datos se guardaron correctamente.', [{ text: 'Continuar', onPress: () => navigation.reset({ index: 0, routes: [{ name: data.rol === 'admin' ? 'AdminReservas' : 'Inicio', params: { user: data, token } }] }) }]);
     } catch (error) { Alert.alert('No se pudo guardar', error.message); } finally { setGuardando(false); }
   };
   const cerrarSesion = () => Alert.alert('Cerrar sesión', '¿Quieres salir de tu cuenta?', [
-    { text: 'Cancelar', style: 'cancel' }, { text: 'Cerrar sesión', style: 'destructive', onPress: () => navigation.reset({ index: 0, routes: [{ name: 'Login' }] }) },
+    { text: 'Cancelar', style: 'cancel' }, { text: 'Cerrar sesión', style: 'destructive', onPress: async () => { await borrarSesionLocal(); navigation.reset({ index: 0, routes: [{ name: 'Login' }] }); } },
   ]);
   return <SafeAreaView style={styles.safeArea}><View style={styles.container}>
     <Pressable style={styles.avatarButton} onPress={elegirFoto} accessibilityRole="button">

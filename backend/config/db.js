@@ -2,7 +2,8 @@ const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-const db = new sqlite3.Database(path.resolve(__dirname, 'restaurante.db'), (err) => {
+const databasePath = process.env.DB_PATH || path.resolve(__dirname, 'restaurante.db');
+const db = new sqlite3.Database(databasePath, (err) => {
   if (err) console.error('Error al conectar a la BD:', err.message);
   else console.log('Conectado a la base de datos SQLite remota/servidor.');
 });
